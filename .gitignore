@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.DS_Store
+*.aux
+*.log
+*.out
+.env
+# se regeneran al compilar el informe
+informe/img/
+informe/informe.pdf
+informe/anexos.tex
+Estrada_Kuschnir.pdf
+# se generan con figuras/hacer_figuras.py
+figuras/fig1_turnos.*

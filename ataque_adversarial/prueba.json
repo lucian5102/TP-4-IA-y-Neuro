@@ -1,0 +1,20 @@
+{
+ "imagenes": [
+  "resultados/casilla_f2c1_limpia.png",
+  "resultados/casilla_f2c1_eps8_atacada.png",
+  "resultados/casilla_f2c1_eps16_atacada.png",
+  "resultados/casilla_f2c1_eps24_atacada.png",
+  "resultados/casilla_f2c3_limpia.png",
+  "resultados/casilla_f2c3_eps8_atacada.png",
+  "resultados/casilla_f2c3_eps16_atacada.png",
+  "resultados/casilla_f2c3_eps24_atacada.png",
+  "resultados/casilla_f3c2_limpia.png",
+  "resultados/casilla_f3c2_eps8_atacada.png",
+  "resultados/casilla_f3c2_eps16_atacada.png",
+  "resultados/casilla_f3c2_eps24_atacada.png",
+  "resultados/casilla_f1c2_limpia.png",
+  "resultados/casilla_f1c2_eps8_atacada.png",
+  "resultados/casilla_f1c2_eps16_atacada.png",
+  "resultados/casilla_f1c2_eps24_atacada.png"
+ ]
+}

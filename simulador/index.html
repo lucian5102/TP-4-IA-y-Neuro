@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador ChatGPT 2024 · TP4</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+</head>
+<body>
+<div class="banner" role="note">
+  Réplica con fines académicos · TP4 IA y Neurociencias (UTDT) · <strong>no es ChatGPT</strong> ·
+  modelo <strong>gpt-4o-mini (2024)</strong>, retirado de ChatGPT, consultado por API
+</div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <button class="side-btn new" id="btnNuevo">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      Nuevo chat
+    </button>
+
+    <div class="side-section">Guiones</div>
+    <div id="listaGuiones" class="side-list"></div>
+
+    <div class="side-section">Herramientas</div>
+    <button class="side-btn" id="btnLote">Correr en lote</button>
+    <button class="side-btn" id="btnVision">Probar imágenes del ataque</button>
+    <button class="side-btn" id="btnReproducir">Reproducir JSONL</button>
+    <input type="file" id="fileJsonl" accept=".jsonl,.json" hidden>
+    <button class="side-btn" id="btnExportar">Exportar esta conversación</button>
+    <button class="side-btn" id="btnAjustes">Ajustes</button>
+
+    <div class="side-section">Historial</div>
+    <div id="historial" class="side-list"></div>
+
+    <div class="side-foot">
+      <div class="avatar">EK</div>
+      <div>
+        <div class="foot-name">Estrada · Kuschnir</div>
+        <div class="foot-sub">TP4 · 2° sem 2026</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="model-pill" id="modelPill" title="Modelo">
+        <span id="modelLabel">gpt-4o-mini</span> <span class="model-year" id="modelYear">· 2024</span>
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="guion-chip" id="guionChip" hidden></div>
+      <div class="key-state" id="keyState">sin API key</div>
+    </header>
+
+    <section class="chat" id="chat">
+      <div class="empty" id="empty">
+        <h1>¿En qué puedo ayudarte?</h1>
+        <p class="empty-sub">Elegí un guion a la izquierda o escribí libremente.</p>
+      </div>
+    </section>
+
+    <footer class="composer-wrap">
+      <div class="attach-preview" id="attachPreview" hidden></div>
+      <form class="composer" id="composer">
+        <button type="button" class="icon-btn" id="btnAdjuntar" title="Adjuntar imagen">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12.5l-8.6 8.6a5.5 5.5 0 01-7.8-7.8l9.2-9.2a3.7 3.7 0 015.2 5.2l-9.2 9.2a1.8 1.8 0 01-2.6-2.6l8.5-8.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <input type="file" id="fileImg" accept="image/png,image/jpeg,image/webp" hidden>
+        <textarea id="input" rows="1" placeholder="Enviar un mensaje a gpt-4o-mini"></textarea>
+        <button type="button" class="icon-btn" id="btnAuto" title="Enviar todos los turnos que quedan del guion" hidden>
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 5l7 7-7 7M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <button type="submit" class="send-btn" id="btnEnviar" title="Enviar">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        </button>
+      </form>
+      <div class="disclaimer">Réplica académica. Las respuestas vienen de gpt-4o-mini por API y pueden contener errores; documentar esos errores es justamente el objetivo del trabajo.</div>
+    </footer>
+  </main>
+</div>
+
+<!-- API key -->
+<dialog id="dlgKey" class="dlg">
+  <form method="dialog" id="formKey">
+    <h2>API key de OpenAI</h2>
+    <p>La key queda solo en la memoria de esta pestaña: no se guarda en disco, ni en el navegador, ni en el repositorio. Al cerrar o recargar la pestaña hay que pegarla de nuevo.</p>
+    <input type="password" id="inpKey" placeholder="sk-..." autocomplete="off" spellcheck="false">
+    <div class="dlg-err" id="keyErr"></div>
+    <div class="dlg-actions">
+      <button type="button" class="btn ghost" id="btnKeyLuego">Más tarde</button>
+      <button type="submit" class="btn primary" id="btnKeyOk">Usar esta key</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Lote -->
+<dialog id="dlgLote" class="dlg wide">
+  <form method="dialog" id="formLote">
+    <h2>Correr guiones en lote</h2>
+    <p>Cada repetición es una conversación nueva: se mandan los 6 turnos del guion en orden, sin mirar las respuestas. Al terminar se descarga un JSONL.</p>
+    <div class="grid2">
+      <label>Repeticiones por guion <input type="number" id="loteN" min="1" max="100" value="20"></label>
+      <label>Temperatura <input type="number" id="loteT" min="0" max="2" step="0.1" value="1"></label>
+      <label>Conversaciones en paralelo <input type="number" id="loteP" min="1" max="8" value="3"></label>
+      <label>Modelo <input type="text" id="loteModelo" value="gpt-4o-mini"></label>
+    </div>
+    <div class="checks" id="loteChecks"></div>
+    <div class="progress" id="loteProg" hidden><div class="bar" id="loteBar"></div><span id="loteTxt"></span></div>
+    <div class="dlg-err" id="loteErr"></div>
+    <div class="dlg-actions">
+      <button type="button" class="btn ghost" id="btnLoteCerrar">Cerrar</button>
+      <button type="button" class="btn ghost" id="btnLoteParar" hidden>Detener</button>
+      <button type="button" class="btn primary" id="btnLoteGo">Empezar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Reproducir -->
+<dialog id="dlgRepro" class="dlg wide">
+  <form method="dialog">
+    <h2>Conversaciones cargadas</h2>
+    <p id="reproInfo"></p>
+    <div class="repro-list" id="reproList"></div>
+    <div class="dlg-actions"><button class="btn ghost">Cerrar</button></div>
+  </form>
+</dialog>
+
+<!-- Ajustes -->
+<dialog id="dlgAjustes" class="dlg wide">
+  <form method="dialog" id="formAjustes">
+    <h2>Ajustes</h2>
+    <div class="grid2">
+      <label>Modelo <input type="text" id="ajModelo" value="gpt-4o-mini"></label>
+      <label>Temperatura <input type="number" id="ajT" min="0" max="2" step="0.1" value="1"></label>
+    </div>
+    <label class="block">Instrucciones de sistema (vacío = ninguna, como en el lote)
+      <textarea id="ajSystem" rows="3"></textarea>
+    </label>
+    <div class="dlg-actions">
+      <button type="button" class="btn ghost" id="btnCambiarKey">Cambiar API key</button>
+      <button class="btn primary">Listo</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
