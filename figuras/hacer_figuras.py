@@ -60,6 +60,8 @@ def leer():
         if fila.get("estrategia"):
             t = (fila.get("turno_falla") or "").strip()
             datos["nuevo"][fila["estrategia"]] = int(t) if t else None
+    for modelo, d in datos.items():
+        assert set(d) == set(ESTRATEGIAS), f"{modelo}: se esperaban seis etiquetas (S1–S6), hay {sorted(d)}"
     return datos
 
 

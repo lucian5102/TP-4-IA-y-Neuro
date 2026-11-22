@@ -356,12 +356,13 @@ function abrirLote() {
 }
 async function correrLote() {
   if (!apiKey) { $("dlgLote").close(); abrirKey(); return; }
-  const n = +$("loteN").value, temp = +$("loteT").value, par = +$("loteP").value;
+  const temp = +$("loteT").value, par = +$("loteP").value;
   const modelo = $("loteModelo").value.trim() || "gpt-4o-mini";
   const ids = [...$("loteChecks").querySelectorAll("input:checked")].map((i) => i.value);
   if (!ids.length) return;
   const trabajos = [];
-  for (const id of ids) for (let r = 1; r <= n; r++) trabajos.push({ g: guiones.find((x) => x.id === id), rep: r });
+  // una sola conversación por guion, siempre rep = 1
+  for (const id of ids) trabajos.push({ g: guiones.find((x) => x.id === id), rep: 1 });
   const totalTurnos = trabajos.reduce((s, t) => s + t.g.turnos.length, 0);
   let hechos = 0, errores = 0;
   const resultados = [];
